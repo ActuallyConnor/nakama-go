@@ -659,7 +659,16 @@ func (socket *DefaultSocket) CreateMatch(name *string) (*Match, error) {
 		fmt.Println("Response received:", response)
 	}
 
-	if match, ok := response["match"].(*Match); ok {
+	if matchField, ok := response["match"].(map[string]interface{}); ok {
+		match := &Match{}
+		mapData, err := json.Marshal(matchField)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal match data: %w", err)
+		}
+
+		if err := json.Unmarshal(mapData, match); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal match data to Match struct: %w", err)
+		}
 		return match, nil
 	}
 
