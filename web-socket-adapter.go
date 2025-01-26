@@ -106,7 +106,6 @@ func (w *WebSocketAdapter) Send(message interface{}) error {
 func (w *WebSocketAdapter) Read() ([]byte, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	fmt.Println("Read")
 
 	if w.socket == nil {
 		return nil, fmt.Errorf("WebSocket is not connected")
@@ -115,14 +114,11 @@ func (w *WebSocketAdapter) Read() ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	msgType, message, err := w.socket.Read(ctx)
+	_, message, err := w.socket.Read(ctx)
 	if err != nil {
 		fmt.Printf("Error reading message: %v\n", err)
 		return nil, err
 	}
-
-	fmt.Printf("Received message: %v\n", message)
-	fmt.Printf("Message type: %v\n", msgType)
 
 	return message, nil
 }

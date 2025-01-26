@@ -442,10 +442,6 @@ func (socket *DefaultSocket) Connect(session Session, createStatus *bool, timeou
 	}
 
 	socket.Adapter.onMessage = func(message []byte) {
-		if socket.Verbose == true {
-			fmt.Println("Received message:", string(message))
-		}
-
 		var messageObject *Message
 		if err := json.Unmarshal(message, &messageObject); err != nil {
 			if socket.Verbose {
@@ -652,10 +648,6 @@ func (socket *DefaultSocket) CreateMatch(name *string) (*Match, error) {
 
 	response, err := socket.Read()
 
-	if socket.Verbose {
-		fmt.Println("Response received:", response)
-	}
-
 	if matchField, ok := response["match"].(map[string]interface{}); ok {
 		match := &Match{}
 		mapData, err := json.Marshal(matchField)
@@ -748,13 +740,25 @@ func (socket *DefaultSocket) JoinMatch(matchID, token *string, metadata *map[str
 		request["match_join"].(map[string]interface{})["match_id"] = matchID
 	}
 
-	var response map[string]interface{}
 	err := socket.Send(request, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	if match, ok := response["match"].(*Match); ok {
+	response, err := socket.Read()
+
+	fmt.Printf("Response: %+v\n", response)
+
+	if matchField, ok := response["match"].(map[string]interface{}); ok {
+		match := &Match{}
+		mapData, err := json.Marshal(matchField)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal match data: %w", err)
+		}
+
+		if err := json.Unmarshal(mapData, match); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal match data to Match struct: %w", err)
+		}
 		return match, nil
 	}
 
