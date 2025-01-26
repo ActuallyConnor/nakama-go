@@ -73,7 +73,6 @@ func (w *WebSocketAdapter) Connect(scheme, host, port string, createStatus bool,
 
 // Send sends a message through the WebSocket connection.
 func (w *WebSocketAdapter) Send(message interface{}) error {
-	fmt.Printf("%v", message)
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
@@ -81,11 +80,11 @@ func (w *WebSocketAdapter) Send(message interface{}) error {
 		return fmt.Errorf("WebSocket is not connected")
 	}
 
-	//// Handle specific cases of match_data_send and party_data_send
-	//if msgMap, ok := message.(map[string]interface{}); ok {
-	//	handleEncodedData(msgMap, "match_data_send")
-	//	handleEncodedData(msgMap, "party_data_send")
-	//}
+	// Handle specific cases of match_data_send and party_data_send
+	if msgMap, ok := message.(map[string]interface{}); ok {
+		handleEncodedData(msgMap, "match_data_send")
+		handleEncodedData(msgMap, "party_data_send")
+	}
 
 	msgBytes, err := json.Marshal(message)
 	if err != nil {

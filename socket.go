@@ -597,7 +597,7 @@ func (socket *DefaultSocket) Send(message interface{}, sendTimeout *int) error {
 		},
 		Reject: func(e error) {
 			if socket.Verbose {
-				fmt.Println("Message failed:", e)
+				log.Println("Message failed:", e)
 			}
 		},
 	}
@@ -623,13 +623,10 @@ func (socket *DefaultSocket) Read() (map[string]interface{}, error) {
 		return nil, errors.New("socket connection is not established")
 	}
 
-	fmt.Println("Reading message...")
 	message, err := socket.Adapter.Read()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read message from socket: %w", err)
 	}
-
-	fmt.Println("Message:", string(message))
 
 	var response map[string]interface{}
 	if err := json.Unmarshal(message, &response); err != nil {
